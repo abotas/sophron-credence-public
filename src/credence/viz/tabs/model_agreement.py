@@ -219,7 +219,7 @@ def _render_domain_strip(
         jitter = np.random.default_rng(42).uniform(-0.2, 0.2, len(vals))
         y_pos = [sorted_cats.index(cat) + j for j in jitter]
 
-        fig_strip.add_trace(go.Scatter(
+        fig_strip.add_trace(go.Scattergl(
             x=vals,
             y=y_pos,
             mode="markers",

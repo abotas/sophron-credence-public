@@ -106,7 +106,7 @@ def _render_scatter(df: pl.DataFrame) -> None:
             cat_df = df.filter(pl.col("category") == cat)
             props = cat_df["proposition"].to_list() if "proposition" in cat_df.columns else []
             hover = [p[:60] + "..." if len(p) > 60 else p for p in props] if props else None
-            fig.add_trace(go.Scatter(
+            fig.add_trace(go.Scattergl(
                 x=cat_df["judge1_credence"].to_list(),
                 y=cat_df["judge2_credence"].to_list(),
                 mode="markers",
@@ -119,7 +119,7 @@ def _render_scatter(df: pl.DataFrame) -> None:
                 hovertext=hover,
             ))
     else:
-        fig.add_trace(go.Scatter(
+        fig.add_trace(go.Scattergl(
             x=df["judge1_credence"].to_list(),
             y=df["judge2_credence"].to_list(),
             mode="markers",

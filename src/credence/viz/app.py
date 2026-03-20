@@ -8,7 +8,6 @@ from pathlib import Path
 
 import streamlit as st
 
-from credence.core.export import RESULTS_DIR
 
 
 # --- Navigation helpers ---
@@ -194,17 +193,6 @@ def main():
         sections = ["Overview", "Part 1: Validation", "Part 2: Exploration"]
         section = st.radio("Section", sections, index=sections.index(default_section))
 
-        st.divider()
-        st.caption("Results directory")
-        if RESULTS_DIR.exists():
-            parquets = sorted(p.stem for p in RESULTS_DIR.glob("*.parquet"))
-            if parquets:
-                st.caption(f"Found: {', '.join(parquets)}")
-            else:
-                st.warning("No parquet files in results/")
-        else:
-            st.error(f"Directory not found: {RESULTS_DIR}")
-            st.stop()
 
     # Route to section
     if section == "Overview":

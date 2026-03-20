@@ -168,7 +168,7 @@ def _render_scatter(df: pl.DataFrame) -> None:
         if bucket_df.is_empty():
             continue
 
-        fig.add_trace(go.Scatter(
+        fig.add_trace(go.Scattergl(
             x=bucket_df["run0_median"].to_list(),
             y=bucket_df["run1_median"].to_list(),
             mode="markers",
