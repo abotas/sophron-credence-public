@@ -8,4 +8,4 @@ build/
 .vscode/
 .DS_Store
 .env
-.streamlit/
+.streamlit/secrets.toml
