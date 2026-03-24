@@ -40,7 +40,7 @@ def _load_exploration_parquets() -> pl.DataFrame:
     files = sorted((RESULTS_DIR / "exploration").glob("*.parquet"))
     if not files:
         return pl.DataFrame()
-    return pl.concat([pl.read_parquet(f) for f in files])
+    return pl.concat([pl.read_parquet(f) for f in files], how="diagonal")
 
 
 def _add_credence_consensus(df: pl.DataFrame) -> pl.DataFrame:
@@ -184,19 +184,25 @@ def load_exploration() -> pl.DataFrame:
 def _add_prompt_attribute_consensus(df: pl.DataFrame) -> pl.DataFrame:
     """Add consensus columns for prompt attributes (average if judges agree within threshold).
 
-    Dynamically discovers prompt_judgeN_* columns and computes pairwise consensus
-    across all judge pairs. Works with any number of judges.
+    Dynamically discovers prompt_judgeN_* and evidence_judgeN_* columns and computes
+    pairwise consensus across all judge pairs. Works with any number of judges.
     """
-    from credence.core.schemas import VALENCE_ATTRIBUTE_NAMES
+    from credence.core.schemas import NEW_EVIDENCE_ATTRIBUTE_NAMES, VALENCE_ATTRIBUTE_NAMES
     from credence.viz.constants import AGREEMENT_THRESHOLD
 
-    all_attrs = list(VALENCE_ATTRIBUTE_NAMES)
+    # (attribute_name, column_prefix) pairs for all prompt attribute scorers
+    attr_prefixes: list[tuple[str, str]] = [
+        (attr, "prompt_judge") for attr in VALENCE_ATTRIBUTE_NAMES
+    ] + [
+        (attr, "evidence_judge") for attr in NEW_EVIDENCE_ATTRIBUTE_NAMES
+        if attr == "new_evidence_score"  # only numeric attrs get consensus
+    ]
 
-    for attr in all_attrs:
+    for attr, prefix in attr_prefixes:
         # Discover all judge columns for this attribute
         judge_cols = sorted(
             col for col in df.columns
-            if col.startswith("prompt_judge") and col.endswith(f"_{attr}")
+            if col.startswith(prefix) and col.endswith(f"_{attr}")
         )
 
         if len(judge_cols) < 2:

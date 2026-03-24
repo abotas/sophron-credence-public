@@ -84,7 +84,8 @@ reliability and validity under an updated pipeline configuration.
 | E1 | {_nav_link("What Models Believe", "exploration", "beliefs")} — Extremity and dispersion of model credences |
 | E2 | {_nav_link("Prompt Sensitivity", "exploration", "sensitivity")} — How framing affects expressed credence |
 | E3 | {_nav_link("Cross-Model Agreement", "exploration", "model_agreement")} — Pairwise model correlations |
-| | {_nav_link("Inspect", "exploration", "inspect")} — Deep-dive into individual propositions and samples |
+| | {_nav_link("Inspect Credences", "exploration", "inspect")} — Deep-dive into individual propositions and samples |
+| | {_nav_link("Inspect Prompt Attributes", "exploration", "inspect_attrs")} — Deep-dive into prompt attribute judgments |
 """
         st.markdown(exploration_links)
 
@@ -145,6 +146,7 @@ def _render_exploration(default_tab):
 
     from credence.viz.tabs.beliefs import render as render_beliefs
     from credence.viz.tabs.explore_inspect import render as render_explore_inspect
+    from credence.viz.tabs.explore_inspect_attrs import render as render_explore_inspect_attrs
     from credence.viz.tabs.model_agreement import render as render_model_agreement
     from credence.viz.tabs.sensitivity import render as render_sensitivity
 
@@ -152,7 +154,8 @@ def _render_exploration(default_tab):
         "beliefs": ("E1 What Models Believe", render_beliefs),
         "sensitivity": ("E2 Prompt Sensitivity", render_sensitivity),
         "model_agreement": ("E3 Cross-Model Agreement", render_model_agreement),
-        "inspect": ("Inspect", render_explore_inspect),
+        "inspect": ("Inspect Credences", render_explore_inspect),
+        "inspect_attrs": ("Inspect Prompt Attributes", render_explore_inspect_attrs),
     }
     tab_keys = list(tab_map.keys())
     tab_labels = [tab_map[k][0] for k in tab_keys]
