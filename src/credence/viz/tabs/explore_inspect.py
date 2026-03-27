@@ -7,9 +7,11 @@ responses side by side.
 
 import statistics
 
+import numpy as np
 import plotly.graph_objects as go
 import polars as pl
 import streamlit as st
+from scipy.stats import linregress
 
 from credence.viz.data import load_exploration
 from credence.viz.formatting import provider_color, short_model, truncate, unslugify
@@ -85,6 +87,10 @@ def render() -> None:
     # Histogram + donut
     _render_distribution_and_donut(prop_df)
 
+    # Valence vs credence scatter
+    if "consensus_author_valence" in prop_df.columns:
+        _render_valence_scatter(prop_df)
+
     st.divider()
 
     # ── Step 2: Select prompt ──────────────────────────────────────────────
@@ -154,6 +160,70 @@ def _render_distribution_and_donut(prop_df: pl.DataFrame) -> None:
         ))
         fig.update_layout(height=280, margin=dict(t=20, b=20), showlegend=False)
         st.plotly_chart(fig, use_container_width=True)
+
+
+def _render_valence_scatter(prop_df: pl.DataFrame) -> None:
+    """Scatter of user valence vs credence with per-model OLS lines for this proposition."""
+    valid = prop_df.filter(
+        pl.col("consensus_credence").is_not_null()
+        & pl.col("consensus_author_valence").is_not_null()
+    )
+    if valid.height < 5:
+        return
+
+    use_logit = st.checkbox("Logit scale", value=False, key="explore_inspect_logit")
+
+    def _to_logit(arr: np.ndarray) -> np.ndarray:
+        clipped = np.clip(arr, 0.01, 0.99)
+        return np.log(clipped / (1 - clipped))
+
+    models = sorted(valid["target_model"].unique().to_list())
+    fig = go.Figure()
+
+    for model_id in models:
+        model_data = valid.filter(pl.col("target_model") == model_id)
+        if model_data.height < 3:
+            continue
+        x = model_data["consensus_author_valence"].to_numpy()
+        y_raw = model_data["consensus_credence"].to_numpy()
+        y = _to_logit(y_raw) if use_logit else y_raw
+        color = provider_color(model_id)
+        name = short_model(model_id)
+
+        # Scatter points
+        fig.add_trace(go.Scatter(
+            x=x, y=y,
+            mode="markers",
+            marker=dict(size=4, color=color, opacity=0.3),
+            showlegend=False,
+            hoverinfo="skip",
+        ))
+
+        # OLS line
+        reg = linregress(x, y)
+        x_line = np.array([0.0, 1.0])
+        y_line = reg.intercept + reg.slope * x_line
+        fig.add_trace(go.Scatter(
+            x=x_line, y=y_line,
+            mode="lines",
+            line=dict(color=color, width=2.5),
+            name=f"{name}  slope={reg.slope:.3f}",
+        ))
+
+    y_label = "Credence (logit)" if use_logit else "Credence"
+    y_range = None if use_logit else [0, 1]
+    fig.update_layout(
+        height=350,
+        xaxis=dict(title="User Valence", range=[-0.05, 1.05]),
+        yaxis=dict(title=y_label, range=y_range),
+        margin=dict(l=50, r=10, t=10, b=40),
+        legend=dict(
+            yanchor="top", y=0.99,
+            xanchor="left", x=0.01,
+            bgcolor="rgba(255,255,255,0.8)",
+        ),
+    )
+    st.plotly_chart(fig, use_container_width=True)
 
 
 def _render_prompt_browser(prop_df: pl.DataFrame) -> None:
