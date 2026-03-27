@@ -100,10 +100,10 @@ def render() -> None:
     if discard_neutral:
         baseline_df = baseline_df.filter((pl.col("consensus_author_valence") - 0.5).abs() > 1e-9)
 
-    use_logit = st.checkbox("Logit scale", value=False, key="sensitivity_logit_scale")
+    use_logit = st.checkbox("Logit scale", value=True, key="sensitivity_logit_scale")
     fixed_effects = st.checkbox(
         "Within-proposition (fixed effects)",
-        value=False,
+        value=True,
         key="sensitivity_fixed_effects",
         help="Demean valence and credence within each proposition to isolate sycophancy from between-proposition base-rate differences.",
     )

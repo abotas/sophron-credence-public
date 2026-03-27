@@ -24,11 +24,8 @@ def _render_overview():
     st.title("Measuring AI Belief")
 
     st.markdown("""
-What beliefs will users interpret models to have, based on model outputs?
-
-We built an automated pipeline to extract probabilistic beliefs about arbitrary
-propositions from natural language outputs responding to prompts inquiring about those
-propositions. The purpose of this is to supply a scalable and automatic way to assess
+**What beliefs do AI models express?** We built an automated pipeline to extract
+probabilistic beliefs about arbitrary propositions from natural language model outputs. The purpose of this is to supply a scalable and automatic way to assess
 and make transparent what beliefs models express across a range of topics, and to test
 how that depends on factors like the framing of the user-prompt and the nature of the
 topic.
