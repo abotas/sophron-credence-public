@@ -24,10 +24,24 @@ def _render_overview():
     st.title("Measuring AI Belief")
 
     st.markdown("""
-What do AI models believe? We built an automated pipeline to extract probabilistic
-beliefs — *expressed credences* — from frontier AI models. The pipeline elicits
-natural-language responses to diverse prompts about arbitrary propositions, then uses
-multi-judge evaluation to estimate a credence score between 0 and 1 for each response.
+What beliefs will users interpret models to have, based on model outputs?
+
+We built an automated pipeline to extract probabilistic beliefs about arbitrary
+propositions from natural language outputs responding to prompts inquiring about those
+propositions. The purpose of this is to supply a scalable and automatic way to assess
+and make transparent what beliefs models express across a range of topics, and to test
+how that depends on factors like the framing of the user-prompt and the nature of the
+topic.
+
+On this provisional page, we demonstrate our initial results. We surveyed frontier
+models on ~1,250 propositions. These results can be seen here in two main parts:
+
+**Part 1:** Results validating our method with a series of robustness checks
+specified in the tabs.
+
+**Part 2:** Substantive results showing expressed model credences across topics, how
+sensitive they are to framing effects (e.g. perceived user-belief about the topic),
+and differences between models.
 
 This page presents results from **Round 2** of our validation experiments. Round 1
 (January 2026) established that the pipeline produces stable, calibrated, and
