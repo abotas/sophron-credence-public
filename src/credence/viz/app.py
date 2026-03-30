@@ -106,11 +106,11 @@ reliability and validity under an updated pipeline configuration.
     st.markdown("""
 **Round 2 models:**
 
-| Role | Experiments 1–5 | Experiment 6 (Known Divergence) |
-|------|----------------|---------------------------|
-| **Elicitors** | GPT-5-mini, Claude Sonnet 4.6 | GPT-5-mini, Claude Sonnet 4.6 |
-| **Target models** | GPT-5-mini | GPT-5-mini, Claude Sonnet 4.6, DeepSeek-chat, Kimi-K2.5 |
-| **Judges** | GPT-5-mini, Claude Sonnet 4.6 | GPT-5-mini, Claude Sonnet 4.6 |
+| Role | Validation (V1–V5) | V6 (Known Divergence) | Exploration (E1–E3) |
+|------|---------------------|-----------------------|---------------------|
+| **Elicitors** | GPT-5-mini, Gemini 3 Flash | GPT-5-mini, Gemini 3 Flash | GPT-5-mini, Gemini 3 Flash |
+| **Target models** | GPT-5-mini | GPT-5-mini, Claude Sonnet 4.6, DeepSeek-Reasoner, Kimi-K2.5 | GPT-5-mini, GPT-5.4, Claude Sonnet 4.6, Claude Opus 4.6, Gemini 3.1 Pro, Gemini 3 Flash |
+| **Judges** | GPT-5-mini, Gemini 3 Flash | GPT-5-mini, Gemini 3 Flash | GPT-5-mini, Gemini 3 Flash |
 
 32 prompts per proposition (16 per elicitor). 2 independent pipeline runs.
 
