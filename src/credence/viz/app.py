@@ -1,4 +1,4 @@
-"""Streamlit visualization for Round 2 credence elicitation experiments.
+"""Streamlit visualization for credence elicitation experiments.
 
 Usage:
     uvr streamlit run src/credence/viz/app.py
@@ -106,7 +106,7 @@ reliability and validity under an updated pipeline configuration.
     st.markdown("""
 **Round 2 models:**
 
-| Role | Validation (V1–V5) | V6 (Known Divergence) | Exploration (E1–E3) |
+| Role | Validation (V1–V4) | V5 (Known Divergence) | Exploration (E1–E3) |
 |------|---------------------|-----------------------|---------------------|
 | **Elicitors** | GPT-5-mini, Gemini 3 Flash | GPT-5-mini, Gemini 3 Flash | GPT-5-mini, Gemini 3 Flash |
 | **Target models** | GPT-5-mini | GPT-5-mini, Claude Sonnet 4.6, DeepSeek-Reasoner, Kimi-K2.5 | GPT-5-mini, GPT-5.4, Claude Sonnet 4.6, Claude Opus 4.6, Gemini 3.1 Pro, Gemini 3 Flash |
@@ -121,7 +121,7 @@ and [here](https://drive.google.com/file/d/1yJLkFneyA0dqSksHP8ij0grsQpXplbTh/vie
     """)
 
 
-def _render_validation(default_tab):
+def _render_validation():
     """Render the validation section with tabs."""
     st.header("Part 1: Method Validation")
 
@@ -143,7 +143,6 @@ def _render_validation(default_tab):
     tab_keys = list(tab_map.keys())
     tab_labels = [tab_map[k][0] for k in tab_keys]
 
-    default_idx = tab_keys.index(default_tab) if default_tab in tab_keys else 0
     tabs = st.tabs(tab_labels)
 
     for i, key in enumerate(tab_keys):
@@ -151,7 +150,7 @@ def _render_validation(default_tab):
             tab_map[key][1]()
 
 
-def _render_exploration(default_tab):
+def _render_exploration():
     """Render the exploration section with tabs."""
     st.header("Part 2: Exploration")
 
@@ -193,7 +192,6 @@ def main():
     # Read query params for deep linking
     params = st.query_params
     section_param = params.get("section", "")
-    tab_param = params.get("tab", "")
 
     if section_param == "validation":
         default_section = "Part 1: Validation"
@@ -212,9 +210,9 @@ def main():
     if section == "Overview":
         _render_overview()
     elif section == "Part 1: Validation":
-        _render_validation(tab_param)
+        _render_validation()
     elif section == "Part 2: Exploration":
-        _render_exploration(tab_param)
+        _render_exploration()
 
 
 def _cli_entry():

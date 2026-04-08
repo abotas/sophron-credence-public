@@ -17,7 +17,7 @@ def render() -> None:
     """Render the judge agreement tab."""
     st.subheader("V4 Judge Agreement: Do different judges produce similar scores?")
     st.caption(
-        "Two judges (GPT-5-mini and Claude Sonnet 4.6) independently evaluate every "
+        "Two judges (GPT-5-mini and Gemini 3 Flash) independently evaluate every "
         "prompt-response pair, estimating the target model's expressed credence. "
         "We measure how often judges agree within 0.2 across all calibration samples."
     )
@@ -69,7 +69,12 @@ def _render_kpi(df: pl.DataFrame) -> None:
     diffs = df["abs_diff"].to_list()
     mean_diff, diff_lo, diff_hi = bootstrap_mean_ci(diffs)
 
-    col1, col2, col3 = st.columns(3)
+    diffs_above_05 = [d > 0.5 for d in diffs]
+    diffs_above_075 = [d > 0.75 for d in diffs]
+    frac_05 = sum(diffs_above_05) / n if n else 0
+    frac_075 = sum(diffs_above_075) / n if n else 0
+
+    col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
         st.metric("Agreement Rate", f"{pt:.1%}")
         st.caption(f"95% CI: [{lo:.1%}, {hi:.1%}]")
@@ -77,6 +82,12 @@ def _render_kpi(df: pl.DataFrame) -> None:
         st.metric("Mean |J1 - J2|", f"{mean_diff:.3f}")
         st.caption(f"95% CI: [{diff_lo:.3f}, {diff_hi:.3f}]")
     with col3:
+        st.metric("|J1 - J2| > 0.5", f"{frac_05:.1%}")
+        st.caption(f"{sum(diffs_above_05):,} / {n:,} samples")
+    with col4:
+        st.metric("|J1 - J2| > 0.75", f"{frac_075:.1%}")
+        st.caption(f"{sum(diffs_above_075):,} / {n:,} samples")
+    with col5:
         st.metric("n samples", f"{n:,}")
 
 

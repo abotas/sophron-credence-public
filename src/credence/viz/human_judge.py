@@ -22,7 +22,7 @@ from credence.core.export import RESULTS_DIR
 
 # ── Paths ────────────────────────────────────────────────────────────────────
 
-JUDGMENTS_DIR = Path(".data/human_judgments/credence_judgments")
+JUDGMENTS_DIR = Path("results/human_judgments")
 
 # ── Data loading ─────────────────────────────────────────────────────────────
 

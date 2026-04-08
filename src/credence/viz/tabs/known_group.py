@@ -77,7 +77,7 @@ def _compute_proposition_results(
     chinese_models: list[str],
 ) -> list[dict]:
     """Compute per-proposition mean credence by model group and directional shift."""
-    # Median consensus credence per (proposition, target_model)
+    # Mean consensus credence per (proposition, target_model)
     prop_model = (
         df.filter(pl.col("consensus_credence").is_not_null())
         .group_by(["proposition", "target_model"])

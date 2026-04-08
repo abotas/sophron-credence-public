@@ -46,29 +46,68 @@ def render() -> None:
             df = df.filter(pl.col("domain") == selected_domain)
 
     # ── Step 1: Select proposition ─────────────────────────────────────────
+    sort_by = st.radio(
+        "Sort propositions by",
+        ["Median credence", "Sycophancy slope"],
+        horizontal=True,
+        key="explore_inspect_sort",
+    )
+
     prop_stats = (
         df.group_by("proposition")
         .agg([
             pl.col("consensus_credence").drop_nulls().median().alias("median"),
             pl.len().alias("n_total"),
         ])
-        .sort(["median", "proposition"], descending=[True, False])
     )
 
     if prop_stats.is_empty():
         st.warning("No propositions found.")
         return
 
+    # Compute per-proposition slope if needed
+    has_valence = "consensus_author_valence" in df.columns
+    if has_valence:
+        slopes = {}
+        for prop in prop_stats["proposition"].to_list():
+            sub = df.filter(
+                (pl.col("proposition") == prop)
+                & pl.col("consensus_credence").is_not_null()
+                & pl.col("consensus_author_valence").is_not_null()
+            )
+            if sub.height >= 5:
+                x = sub["consensus_author_valence"].to_numpy()
+                y = sub["consensus_credence"].to_numpy()
+                reg = linregress(x, y)
+                slopes[prop] = reg.slope
+            else:
+                slopes[prop] = None
+        prop_stats = prop_stats.with_columns(
+            pl.col("proposition").map_elements(lambda p: slopes.get(p), return_dtype=pl.Float64).alias("slope")
+        )
+
+    if sort_by == "Sycophancy slope" and has_valence:
+        prop_stats = prop_stats.sort(["slope", "proposition"], descending=[True, False], nulls_last=True)
+    else:
+        prop_stats = prop_stats.sort(["median", "proposition"], descending=[True, False])
+
     props = prop_stats["proposition"].to_list()
-    medians = prop_stats["median"].to_list()
+    medians = {r["proposition"]: r["median"] for r in prop_stats.to_dicts()}
+    slope_vals = {r["proposition"]: r.get("slope") for r in prop_stats.to_dicts()} if has_valence else {}
 
     prop_to_label = {}
-    for p, m in zip(props, medians):
+    for p in props:
+        m = medians[p]
         m_str = f"{m:.2f}" if m is not None else "N/A"
-        prop_to_label[p] = f"{m_str} — {truncate(p, 60)}"
+        if sort_by == "Sycophancy slope" and has_valence:
+            s = slope_vals.get(p)
+            s_str = f"{s:+.3f}" if s is not None else "N/A"
+            prop_to_label[p] = f"slope {s_str}  med {m_str} — {truncate(p, 50)}"
+        else:
+            prop_to_label[p] = f"{m_str} — {truncate(p, 60)}"
 
     selected_prop = st.selectbox(
-        "Proposition (by median credence)",
+        "Proposition",
         props,
         format_func=lambda p: prop_to_label[p],
         key="explore_inspect_prop",
@@ -228,14 +267,20 @@ def _render_valence_scatter(prop_df: pl.DataFrame) -> None:
 
 def _render_prompt_browser(prop_df: pl.DataFrame) -> None:
     """Render prompt selector and per-model responses."""
-    # Group samples by prompt_text, compute avg credence across models
+    # Group samples by prompt_text, compute avg credence + prompt attributes
+    agg_exprs = [
+        pl.col("consensus_credence").drop_nulls().mean().alias("avg_credence"),
+        pl.col("consensus_credence").drop_nulls().count().alias("n_consensus"),
+        pl.len().alias("n_models"),
+    ]
+    if "consensus_author_valence" in prop_df.columns:
+        agg_exprs.append(pl.col("consensus_author_valence").first().alias("valence"))
+    if "consensus_new_evidence_score" in prop_df.columns:
+        agg_exprs.append(pl.col("consensus_new_evidence_score").first().alias("evidence"))
+
     prompt_groups = (
         prop_df.group_by("prompt_text")
-        .agg([
-            pl.col("consensus_credence").drop_nulls().mean().alias("avg_credence"),
-            pl.col("consensus_credence").drop_nulls().count().alias("n_consensus"),
-            pl.len().alias("n_models"),
-        ])
+        .agg(agg_exprs)
         .sort(["avg_credence", "prompt_text"], descending=[True, False])
     )
 
@@ -264,6 +309,19 @@ def _render_prompt_browser(prop_df: pl.DataFrame) -> None:
     # Show the full prompt
     st.markdown("**Prompt:**")
     st.code(str(selected_prompt)[:3000], language=None)
+
+    # Prompt-level metrics
+    row = prompt_groups.filter(pl.col("prompt_text") == selected_prompt).to_dicts()[0]
+    metric_cols = st.columns(3)
+    with metric_cols[0]:
+        v = row.get("valence")
+        st.metric("Prompt Valence", f"{v:.2f}" if v is not None else "N/A")
+    with metric_cols[1]:
+        e = row.get("evidence")
+        st.metric("Information Score", f"{e:.2f}" if e is not None else "N/A")
+    with metric_cols[2]:
+        a = row.get("avg_credence")
+        st.metric("Avg Credence", f"{a:.2f}" if a is not None else "N/A")
 
     # ── Step 3: Model responses ────────────────────────────────────────────
     prompt_samples = prop_df.filter(pl.col("prompt_text") == selected_prompt)

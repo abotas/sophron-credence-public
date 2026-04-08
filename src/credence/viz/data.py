@@ -76,6 +76,7 @@ def _add_credence_consensus(df: pl.DataFrame) -> pl.DataFrame:
     )
 
 
+@st.cache_data
 def load_calibration(run_id: int | None = None) -> pl.DataFrame:
     """Load calibration results, optionally filtered to a single run."""
     df = _add_credence_consensus(_load_results("calibration"))
@@ -87,7 +88,7 @@ def load_calibration(run_id: int | None = None) -> pl.DataFrame:
 
 
 def _add_sided_consensus(df: pl.DataFrame, prefix: str) -> pl.DataFrame:
-    """Compute consensus for a sided judge pair (e.g. p_judge1_credence → p_consensus)."""
+    """Compute consensus for a sided judge pair (e.g. p_judge1_credence -> p_consensus)."""
     from credence.viz.constants import AGREEMENT_THRESHOLD
 
     j1 = f"{prefix}_judge1_credence"
@@ -113,6 +114,7 @@ def _add_sided_consensus(df: pl.DataFrame, prefix: str) -> pl.DataFrame:
     )
 
 
+@st.cache_data
 def load_negation() -> pl.DataFrame:
     """Load negation experiment data."""
     df = _add_credence_consensus(_load_results("negation"))
@@ -159,6 +161,7 @@ def _add_monotonicity_credences(df: pl.DataFrame) -> pl.DataFrame:
     return df.with_columns(pl.Series("credences", credences))
 
 
+@st.cache_data
 def load_monotonicity() -> pl.DataFrame:
     """Load monotonicity experiment data."""
     df = _load_results("monotonicity")
@@ -167,11 +170,13 @@ def load_monotonicity() -> pl.DataFrame:
     return _add_monotonicity_credences(df)
 
 
+@st.cache_data
 def load_china() -> pl.DataFrame:
     """Load China comparison experiment data."""
     return _add_credence_consensus(_load_results("china"))
 
 
+@st.cache_data
 def load_exploration() -> pl.DataFrame:
     """Load exploration results with computed consensus columns."""
     df = _load_results("exploration")
@@ -237,6 +242,7 @@ def _add_prompt_attribute_consensus(df: pl.DataFrame) -> pl.DataFrame:
     return df
 
 
+@st.cache_data
 def load_all_for_agreement() -> pl.DataFrame:
     """Load calibration data for judge agreement analysis.
 

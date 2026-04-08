@@ -60,45 +60,152 @@ def render() -> None:
 
     filtered_df = df.filter(pl.col(dcol).is_in(selected_domains))
 
-    # New evidence filter — exclude prompts where any judge scored evidence > 0.4
+    # Max judge disagreement slider — recompute consensus_credence at the chosen threshold
+    has_judge_cols = "judge1_credence" in filtered_df.columns and "judge2_credence" in filtered_df.columns
+    if has_judge_cols:
+        disagree_slider_col, disagree_count_col = st.columns([3, 1])
+        with disagree_slider_col:
+            max_disagreement = st.slider(
+                "Max judge disagreement (exclude above)",
+                min_value=0.05,
+                max_value=1.0,
+                value=0.2,
+                step=0.05,
+                key="sensitivity_max_disagreement",
+            )
+        has_informative = "judge1_informative" in filtered_df.columns and "judge2_informative" in filtered_df.columns
+        both_informative = pl.lit(True)
+        if has_informative:
+            both_informative = pl.col("judge1_informative") & pl.col("judge2_informative")
+        both_not_null = pl.col("judge1_credence").is_not_null() & pl.col("judge2_credence").is_not_null()
+        within_threshold = (
+            (pl.col("judge1_credence") - pl.col("judge2_credence")).abs()
+            <= max_disagreement + 1e-9
+        )
+        pre_n = filtered_df.filter(both_informative & both_not_null).height
+        filtered_df = filtered_df.with_columns(
+            pl.when(both_informative & both_not_null & within_threshold)
+            .then((pl.col("judge1_credence") + pl.col("judge2_credence")) / 2)
+            .otherwise(None)
+            .alias("consensus_credence")
+        )
+        post_n = filtered_df.filter(pl.col("consensus_credence").is_not_null()).height
+        excluded_disagree = pre_n - post_n
+        pct_disagree = excluded_disagree / pre_n * 100 if pre_n > 0 else 0
+        with disagree_count_col:
+            st.caption(f"Excluded {excluded_disagree}/{pre_n} ({pct_disagree:.1f}%)")
+
+    # New evidence filter — exclude prompts where any judge scored evidence above threshold
     evidence_cols = [c for c in filtered_df.columns if c.endswith("_new_evidence_score") and c.startswith("evidence_judge")]
     if evidence_cols:
-        check_col, count_col = st.columns([3, 1])
-        with check_col:
-            exclude_evidence = st.checkbox(
-                "Exclude prompts with new evidence (any judge > 0.4)",
-                value=True,
-                key="sensitivity_exclude_evidence",
+        slider_col, count_col = st.columns([3, 1])
+        with slider_col:
+            evidence_threshold = st.slider(
+                "Max new evidence score (exclude above)",
+                min_value=0.0,
+                max_value=1.0,
+                value=0.4,
+                step=0.05,
+                key="sensitivity_evidence_threshold",
             )
-        if exclude_evidence:
-            any_null = pl.lit(False)
-            any_above = pl.lit(False)
-            for c in evidence_cols:
-                any_null = any_null | pl.col(c).is_null()
-                any_above = any_above | (pl.col(c) > 0.4 + 1e-9)
-            pre_filter_n = len(filtered_df)
-            filtered_df = filtered_df.filter(~any_null & ~any_above)
-            excluded_n = pre_filter_n - len(filtered_df)
-            with count_col:
-                st.caption(f"Excluded {excluded_n} prompts")
+        any_null = pl.lit(False)
+        any_above = pl.lit(False)
+        for c in evidence_cols:
+            any_null = any_null | pl.col(c).is_null()
+            any_above = any_above | (pl.col(c) > evidence_threshold + 1e-9)
+        pre_filter_n = len(filtered_df)
+        filtered_df = filtered_df.filter(~any_null & ~any_above)
+        excluded_n = pre_filter_n - len(filtered_df)
+        pct_evidence = excluded_n / pre_filter_n * 100 if pre_filter_n > 0 else 0
+        with count_col:
+            st.caption(f"Excluded {excluded_n}/{pre_filter_n} ({pct_evidence:.1f}%)")
+
+    # Prompt attribute filters
+    st.markdown("**Prompt attribute filters**")
+
+    filter_cols = st.columns(4)
+
+    # User prior filter
+    if "prior" in filtered_df.columns:
+        with filter_cols[0]:
+            all_priors = sorted(filtered_df["prior"].drop_nulls().unique().to_list())
+            selected_priors = st.multiselect(
+                "User prior",
+                all_priors,
+                default=all_priors,
+                key="sensitivity_prior",
+            )
+            if selected_priors and len(selected_priors) < len(all_priors):
+                filtered_df = filtered_df.filter(pl.col("prior").is_in(selected_priors))
+
+    # Length filter
+    if "length" in filtered_df.columns and filtered_df["length"].drop_nulls().len() > 0:
+        with filter_cols[1]:
+            all_lengths = sorted(filtered_df["length"].drop_nulls().unique().to_list())
+            selected_lengths = st.multiselect(
+                "Length",
+                all_lengths,
+                default=all_lengths,
+                key="sensitivity_length",
+            )
+            if selected_lengths and len(selected_lengths) < len(all_lengths):
+                filtered_df = filtered_df.filter(pl.col("length").is_in(selected_lengths))
+
+    # Tone filter
+    if "tone" in filtered_df.columns and filtered_df["tone"].drop_nulls().len() > 0:
+        with filter_cols[2]:
+            all_tones = sorted(filtered_df["tone"].drop_nulls().unique().to_list())
+            selected_tones = st.multiselect(
+                "Tone",
+                all_tones,
+                default=all_tones,
+                key="sensitivity_tone",
+            )
+            if selected_tones and len(selected_tones) < len(all_tones):
+                filtered_df = filtered_df.filter(pl.col("tone").is_in(selected_tones))
+
+    # Artifact filter (supports both v2 is_artifact and v1 prompt_shape)
+    has_artifact = "is_artifact" in filtered_df.columns and filtered_df["is_artifact"].drop_nulls().len() > 0
+    has_prompt_shape = "prompt_shape" in filtered_df.columns
+    if has_artifact or has_prompt_shape:
+        with filter_cols[3]:
+            artifact_filter = st.selectbox(
+                "Artifact",
+                ["All", "Artifact only", "Conversational only"],
+                key="sensitivity_artifact",
+            )
+            if artifact_filter != "All":
+                if has_artifact:
+                    if artifact_filter == "Artifact only":
+                        filtered_df = filtered_df.filter(pl.col("is_artifact") == True)
+                    else:
+                        filtered_df = filtered_df.filter(pl.col("is_artifact") != True)
+                elif has_prompt_shape:
+                    if artifact_filter == "Artifact only":
+                        filtered_df = filtered_df.filter(pl.col("prompt_shape") == "artifact_request")
+                    else:
+                        filtered_df = filtered_df.filter(pl.col("prompt_shape") != "artifact_request")
+
+    # Filter prompts where any target model had a non-informative response
+    if "sample_id" in filtered_df.columns and "judge1_informative" in filtered_df.columns:
+        uninformative_ids = (
+            filtered_df
+            .filter(~pl.col("judge1_informative") | ~pl.col("judge2_informative"))
+            .select("sample_id")
+            .unique()
+        )
+        n_uninformative_prompts = uninformative_ids.height
+        exclude_uninformative = st.checkbox(
+            f"Exclude prompts where any model was uninformative ({n_uninformative_prompts} prompts)",
+            value=False,
+            key="sensitivity_exclude_uninformative",
+        )
+        if exclude_uninformative:
+            filtered_df = filtered_df.filter(~pl.col("sample_id").is_in(uninformative_ids["sample_id"]))
+
     selected_models = sorted(filtered_df["target_model"].unique().to_list(), key=model_sort_key)
 
-    # Calculate % of neutral prompts
-    total_prompts = len(filtered_df.filter(pl.col("consensus_author_valence").is_not_null()))
-    neutral_prompts = len(filtered_df.filter(
-        pl.col("consensus_author_valence").is_not_null()
-        & ((pl.col("consensus_author_valence") - 0.5).abs() < 1e-9)
-    ))
-    neutral_pct = neutral_prompts / total_prompts * 100 if total_prompts > 0 else 0
-
-    discard_neutral = st.checkbox(
-        f"Discard neutral user valence (0.5) ({neutral_pct:.1f}% of prompts)",
-        value=True,
-        key="sensitivity_discard_neutral",
-    )
     baseline_df = filtered_df
-    if discard_neutral:
-        baseline_df = baseline_df.filter((pl.col("consensus_author_valence") - 0.5).abs() > 1e-9)
 
     use_logit = st.checkbox("Logit scale", value=True, key="sensitivity_logit_scale")
     fixed_effects = st.checkbox(
@@ -331,7 +438,7 @@ def render() -> None:
         fig_corr.update_layout(
             height=max(200, len(results_df) * 50),
             margin=dict(l=10, r=10, t=10, b=55),
-            xaxis=dict(title="Pearson r", range=[0, 1]),
+            xaxis=dict(title="Pearson r", range=[-1, 1]),
             yaxis=dict(title=""),
             annotations=[
                 dict(
