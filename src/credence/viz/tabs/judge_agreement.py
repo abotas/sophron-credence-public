@@ -143,7 +143,7 @@ def _render_scatter(df: pl.DataFrame) -> None:
         height=500,
         margin=dict(t=30),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def _render_diff_histogram(df: pl.DataFrame) -> None:
@@ -178,7 +178,7 @@ def _render_diff_histogram(df: pl.DataFrame) -> None:
         height=350,
         margin=dict(t=30),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def _render_summary_table(df: pl.DataFrame) -> None:
@@ -197,4 +197,4 @@ def _render_summary_table(df: pl.DataFrame) -> None:
             "n": len(agrees),
         })
 
-    st.dataframe(pl.DataFrame(rows), use_container_width=True, hide_index=True)
+    st.dataframe(pl.DataFrame(rows), width="stretch", hide_index=True)

@@ -319,7 +319,7 @@ def render() -> None:
             bgcolor="rgba(255,255,255,0.8)",
         ),
     )
-    st.plotly_chart(fig_scatter, use_container_width=True)
+    st.plotly_chart(fig_scatter, width="stretch")
 
     # Slope forest plot
     if slope_results:
@@ -367,7 +367,7 @@ def render() -> None:
                 )
             ],
         )
-        st.plotly_chart(fig_slopes, use_container_width=True)
+        st.plotly_chart(fig_slopes, width="stretch")
 
     # ── Section 2: Correlation Forest Plot ────────────────────────────────
     st.markdown("**User Valence vs Credence Correlation**")
@@ -451,7 +451,7 @@ def render() -> None:
                 )
             ],
         )
-        st.plotly_chart(fig_corr, use_container_width=True)
+        st.plotly_chart(fig_corr, width="stretch")
 
     # ── Section 3: Distribution Histograms ────────────────────────────────
     st.markdown("**Credence Distributions**")
@@ -554,7 +554,7 @@ def render() -> None:
         )
 
         with cols[i % 2]:
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
 
     # ── Section 4: User Valence Distribution ──────────────────────────────
     st.markdown("**User Valence Distribution**")
@@ -578,4 +578,4 @@ def render() -> None:
             yaxis=dict(title="%"),
             bargap=0.1,
         )
-        st.plotly_chart(fig_valence, use_container_width=True)
+        st.plotly_chart(fig_valence, width="stretch")

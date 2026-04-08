@@ -136,7 +136,7 @@ def render() -> None:
         st.caption("Mean absolute error between model credences across all propositions. Lower = more similar.")
     else:
         st.caption(f"{metric_type} correlation between model credences. Higher = more agreement.")
-    st.plotly_chart(fig_heatmap, use_container_width=True)
+    st.plotly_chart(fig_heatmap, width="stretch")
 
     if pair_metrics:
         best, worst = pair_metrics[0], pair_metrics[-1]
@@ -254,7 +254,7 @@ def _render_domain_strip(
 
     st.markdown("**Agreement by Category**")
     st.caption("Same metric computed per category. Each dot = one model pair. Diamonds = category mean.")
-    st.plotly_chart(fig_strip, use_container_width=True)
+    st.plotly_chart(fig_strip, width="stretch")
 
 
 def _render_disagreement_outliers(
@@ -382,4 +382,4 @@ def _render_disagreement_outliers(
             yaxis=dict(visible=False, range=[-0.3, 0.3]),
             showlegend=False,
         )
-        st.plotly_chart(fig_dots, use_container_width=True, key=f"disagreement_plot_{rank}")
+        st.plotly_chart(fig_dots, width="stretch", key=f"disagreement_plot_{rank}")

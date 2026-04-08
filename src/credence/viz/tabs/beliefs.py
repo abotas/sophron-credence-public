@@ -87,7 +87,7 @@ def _render_overview(df: pl.DataFrame) -> None:
             xaxis=dict(title="Mean Extremity", range=[0, model_stats["mean_extremity"].max() * 1.25]),
             yaxis=dict(title=""),
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     with col2:
         st.markdown("### By Domain")
@@ -115,7 +115,7 @@ def _render_overview(df: pl.DataFrame) -> None:
             xaxis=dict(title="Mean Extremity", range=[0, dom_stats["mean_extremity"].max() * 1.25]),
             yaxis=dict(title=""),
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     # ── Dispersion ────────────────────────────────────────────────────────
     st.markdown(
@@ -167,7 +167,7 @@ def _render_overview(df: pl.DataFrame) -> None:
             xaxis=dict(title="Mean IQR", range=[0, model_stats["mean_iqr"].max() * 1.25]),
             yaxis=dict(title=""),
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     with col2:
         st.markdown("### By Domain")
@@ -195,7 +195,7 @@ def _render_overview(df: pl.DataFrame) -> None:
             xaxis=dict(title="Mean IQR", range=[0, dom_stats["mean_iqr"].max() * 1.25]),
             yaxis=dict(title=""),
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
 
 def _render_deep_dive(df: pl.DataFrame) -> None:
@@ -274,7 +274,7 @@ def _render_deep_dive(df: pl.DataFrame) -> None:
         barmode="overlay",
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     st.divider()
 
@@ -331,7 +331,7 @@ def _render_deep_dive(df: pl.DataFrame) -> None:
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         yaxis=dict(title="%", range=[0, 105]),
     )
-    st.plotly_chart(fig_counts, use_container_width=True)
+    st.plotly_chart(fig_counts, width="stretch")
 
     st.divider()
 

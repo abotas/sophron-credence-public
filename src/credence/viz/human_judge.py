@@ -321,7 +321,7 @@ def tab_results(exploration: pl.DataFrame) -> None:
                 height=500,
                 margin=dict(l=10, r=10, t=30, b=10),
             )
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
 
             # Agreement stats
             diff = (comparable["credence"] - comparable["score_value"]).abs()
@@ -345,7 +345,7 @@ def tab_results(exploration: pl.DataFrame) -> None:
         )
         .sort("username")
     )
-    st.dataframe(user_summary, use_container_width=True, hide_index=True)
+    st.dataframe(user_summary, width="stretch", hide_index=True)
 
     # Full judgment table
     st.subheader("All judgments")
@@ -370,7 +370,7 @@ def tab_results(exploration: pl.DataFrame) -> None:
 
     st.dataframe(
         merged.select(display_cols).sort("timestamp", descending=True),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
         height=500,
     )

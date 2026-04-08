@@ -177,7 +177,7 @@ def _render_distribution_and_donut(prop_df: pl.DataFrame) -> None:
             yaxis=dict(title="Count"),
             height=280, margin=dict(t=20, b=20),
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     with right:
         n = prop_df.height
@@ -198,7 +198,7 @@ def _render_distribution_and_donut(prop_df: pl.DataFrame) -> None:
             hole=0.4,
         ))
         fig.update_layout(height=280, margin=dict(t=20, b=20), showlegend=False)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
 
 def _render_valence_scatter(prop_df: pl.DataFrame) -> None:
@@ -262,7 +262,7 @@ def _render_valence_scatter(prop_df: pl.DataFrame) -> None:
             bgcolor="rgba(255,255,255,0.8)",
         ),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def _render_prompt_browser(prop_df: pl.DataFrame) -> None:

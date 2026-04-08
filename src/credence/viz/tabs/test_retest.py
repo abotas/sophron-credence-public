@@ -150,7 +150,7 @@ def _render_correlation_table(df: pl.DataFrame) -> None:
             "Status": status,
         })
 
-    st.dataframe(pl.DataFrame(rows), use_container_width=True, hide_index=True)
+    st.dataframe(pl.DataFrame(rows), width="stretch", hide_index=True)
 
 
 def _render_scatter(df: pl.DataFrame) -> None:
@@ -198,7 +198,7 @@ def _render_scatter(df: pl.DataFrame) -> None:
         height=500,
         margin=dict(t=30),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def _render_mad_chart(df: pl.DataFrame) -> None:
@@ -234,4 +234,4 @@ def _render_mad_chart(df: pl.DataFrame) -> None:
         height=350,
         margin=dict(t=30),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")

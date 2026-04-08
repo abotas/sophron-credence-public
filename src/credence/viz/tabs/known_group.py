@@ -254,7 +254,7 @@ def _render_dumbbell_chart(plot_results: list[dict]) -> None:
         legend=dict(orientation="h", yanchor="bottom", y=1.02),
         margin=dict(l=10),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def _render_judge_donuts(df: pl.DataFrame, models: list[str]) -> None:
@@ -292,7 +292,7 @@ def _render_judge_donuts(df: pl.DataFrame, models: list[str]) -> None:
 
     fig.update_layout(height=250, margin=dict(t=40, b=20), showlegend=True,
                       legend=dict(orientation="h", yanchor="bottom", y=-0.15))
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def _render_refusal_table(df: pl.DataFrame, models: list[str]) -> None:
@@ -315,7 +315,7 @@ def _render_refusal_table(df: pl.DataFrame, models: list[str]) -> None:
             "Refusal Rate": f"{refusals / total:.1%}" if total > 0 else "—",
         })
 
-    st.dataframe(pl.DataFrame(rows), use_container_width=True, hide_index=True)
+    st.dataframe(pl.DataFrame(rows), width="stretch", hide_index=True)
 
 
 def _render_proposition_detail(plot_results: list[dict]) -> None:
@@ -332,4 +332,4 @@ def _render_proposition_detail(plot_results: list[dict]) -> None:
             "Correct": "Yes" if r["correct"] else "No" if r["correct"] is not None else "—",
         })
 
-    st.dataframe(pl.DataFrame(rows), use_container_width=True, hide_index=True)
+    st.dataframe(pl.DataFrame(rows), width="stretch", hide_index=True)

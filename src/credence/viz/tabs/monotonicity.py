@@ -65,7 +65,7 @@ def _render_judge_stats(df: pl.DataFrame) -> None:
 
     fig.update_layout(height=300, margin=dict(t=40, b=20))
     st.subheader("Judge & Consensus Rates")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def _series_proposition_level_pass(df: pl.DataFrame, series_id: str) -> bool | None:
@@ -276,6 +276,6 @@ def _render_single_series(df: pl.DataFrame, series_id, prop_pass: bool | None = 
         height=60 + 70 * n_props,
         margin=dict(t=30, b=20),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 

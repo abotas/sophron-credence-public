@@ -114,7 +114,7 @@ def _render_attribute_overview(
                 yaxis=dict(title="Count"),
                 height=250, margin=dict(t=10, b=30),
             )
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
         else:
             st.caption("No consensus author valence values.")
 
@@ -131,7 +131,7 @@ def _render_attribute_overview(
                 yaxis=dict(title="Count"),
                 height=250, margin=dict(t=10, b=30),
             )
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
         else:
             st.caption("No consensus new evidence scores.")
 

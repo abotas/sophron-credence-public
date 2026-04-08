@@ -125,7 +125,7 @@ def _render_judge_stats(df: pl.DataFrame) -> None:
         height=250, margin=dict(t=40, b=20), showlegend=True,
         legend=dict(orientation="h", yanchor="bottom", y=-0.15),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def _prop_group_cols(df: pl.DataFrame) -> list[str]:
@@ -216,7 +216,7 @@ def _render_distribution_plots(
         height=450,
         margin=dict(t=30),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 
@@ -249,4 +249,4 @@ def _render_proposition_detail(
         .alias("status")
     )
 
-    st.dataframe(detail, use_container_width=True, hide_index=True)
+    st.dataframe(detail, width="stretch", hide_index=True)

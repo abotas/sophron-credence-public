@@ -1,6 +1,6 @@
 """Data loading for the visualization app.
 
-All loaders use @st.cache_data and return empty DataFrames when files are missing,
+All loaders use @st.cache_resource and return empty DataFrames when files are missing,
 so tabs can degrade gracefully.
 """
 
@@ -14,7 +14,7 @@ from credence.core.export import RESULTS_DIR
 _VALIDATION_EXPERIMENTS = {"calibration", "negation", "monotonicity", "china"}
 
 
-@st.cache_data
+@st.cache_resource
 def _read_parquet(path: str) -> pl.DataFrame:
     """Read a parquet file. Returns empty DataFrame if missing."""
     p = Path(path)
@@ -34,7 +34,7 @@ def _load_results(experiment: str) -> pl.DataFrame:
     return _read_parquet(str(path))
 
 
-@st.cache_data
+@st.cache_resource
 def _load_exploration_parquets() -> pl.DataFrame:
     """Load and concatenate all per-domain exploration parquet files."""
     files = sorted((RESULTS_DIR / "exploration").glob("*.parquet"))
@@ -76,7 +76,7 @@ def _add_credence_consensus(df: pl.DataFrame) -> pl.DataFrame:
     )
 
 
-@st.cache_data
+@st.cache_resource
 def load_calibration(run_id: int | None = None) -> pl.DataFrame:
     """Load calibration results, optionally filtered to a single run."""
     df = _add_credence_consensus(_load_results("calibration"))
@@ -114,7 +114,7 @@ def _add_sided_consensus(df: pl.DataFrame, prefix: str) -> pl.DataFrame:
     )
 
 
-@st.cache_data
+@st.cache_resource
 def load_negation() -> pl.DataFrame:
     """Load negation experiment data."""
     df = _add_credence_consensus(_load_results("negation"))
@@ -161,7 +161,7 @@ def _add_monotonicity_credences(df: pl.DataFrame) -> pl.DataFrame:
     return df.with_columns(pl.Series("credences", credences))
 
 
-@st.cache_data
+@st.cache_resource
 def load_monotonicity() -> pl.DataFrame:
     """Load monotonicity experiment data."""
     df = _load_results("monotonicity")
@@ -170,13 +170,13 @@ def load_monotonicity() -> pl.DataFrame:
     return _add_monotonicity_credences(df)
 
 
-@st.cache_data
+@st.cache_resource
 def load_china() -> pl.DataFrame:
     """Load China comparison experiment data."""
     return _add_credence_consensus(_load_results("china"))
 
 
-@st.cache_data
+@st.cache_resource
 def load_exploration() -> pl.DataFrame:
     """Load exploration results with computed consensus columns."""
     df = _load_results("exploration")
@@ -242,7 +242,7 @@ def _add_prompt_attribute_consensus(df: pl.DataFrame) -> pl.DataFrame:
     return df
 
 
-@st.cache_data
+@st.cache_resource
 def load_all_for_agreement() -> pl.DataFrame:
     """Load calibration data for judge agreement analysis.
 

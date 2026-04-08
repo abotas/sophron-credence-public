@@ -71,7 +71,7 @@ def _render_judge_stats(df: pl.DataFrame) -> None:
         legend=dict(orientation="h", yanchor="bottom", y=-0.15),
     )
     st.subheader("Judge & Consensus Rates")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def _proposition_level_errors(df: pl.DataFrame) -> pl.DataFrame:
@@ -191,7 +191,7 @@ def _render_abs_error_histogram(df: pl.DataFrame, level: str) -> None:
         height=400,
         margin=dict(t=30),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption("Absolute error = |J(P) + J(¬P) − 1|. Perfect negation consistency → 0.")
 
 
@@ -275,7 +275,7 @@ def _render_signed_error_histogram(df: pl.DataFrame, level: str) -> None:
         height=400,
         margin=dict(t=30),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption("Signed error = J(P) + J(¬P) − 1. Perfect negation consistency → 0.")
 
 
@@ -348,7 +348,7 @@ def _render_pair_detail(df: pl.DataFrame) -> None:
         margin=dict(t=30, b=20, l=10),
         legend=dict(orientation="h", yanchor="bottom", y=1.02),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption(
         "Each bar shows median P credence (blue) + median ¬P credence (red). "
         "Perfect negation consistency → bar reaches exactly 1.0 (dashed line). "

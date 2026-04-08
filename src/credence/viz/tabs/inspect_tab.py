@@ -222,7 +222,7 @@ def _render_standard_distribution_and_donuts(prop_df, is_known_div):
             yaxis=dict(title="Count"),
             height=280, margin=dict(t=20, b=20),
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     with right:
         labels = ["Consensus", "Uninformative", "Disagreement"]
@@ -266,7 +266,7 @@ def _render_standard_distribution_and_donuts(prop_df, is_known_div):
             ))
             fig.update_layout(height=280, margin=dict(t=20, b=20), showlegend=False)
 
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
 
 def _render_standard_samples(prop_df):
@@ -423,7 +423,7 @@ def _render_negation_inspect():
             yaxis=dict(title="Count"),
             height=280, margin=dict(t=20, b=20),
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     with right:
         # Donut for P-side consensus breakdown
@@ -462,7 +462,7 @@ def _render_negation_inspect():
             hole=0.4, showlegend=False,
         ), row=1, col=2)
         fig.update_layout(height=280, margin=dict(t=30, b=20))
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     st.divider()
 
@@ -605,7 +605,7 @@ def _render_monotonicity_inspect():
             height=300, margin=dict(t=20, b=20),
             showlegend=False,
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     with right:
         # Donut: consensus / uninformative per position (aggregated)
@@ -638,7 +638,7 @@ def _render_monotonicity_inspect():
                 hole=0.4,
             ))
             fig.update_layout(height=300, margin=dict(t=20, b=20), showlegend=False)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
 
     st.divider()
 
