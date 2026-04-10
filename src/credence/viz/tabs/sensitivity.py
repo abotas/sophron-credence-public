@@ -435,10 +435,14 @@ def render() -> None:
                 showlegend=False,
             ))
 
+        # If all correlations and their CI lower bounds are non-negative, clip the
+        # x-axis to [0, 1] to use the available space better; otherwise show [-1, 1].
+        min_ci_low = float(results_df["ci_low"].min())
+        corr_x_range = [0, 1] if min_ci_low >= 0 else [-1, 1]
         fig_corr.update_layout(
             height=max(200, len(results_df) * 50),
             margin=dict(l=10, r=10, t=10, b=55),
-            xaxis=dict(title="Pearson r", range=[-1, 1]),
+            xaxis=dict(title="Pearson r", range=corr_x_range),
             yaxis=dict(title=""),
             annotations=[
                 dict(
